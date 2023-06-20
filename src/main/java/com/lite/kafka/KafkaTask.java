@@ -17,8 +17,6 @@ public abstract class KafkaTask<K ,V> implements Runnable, Consumer<ConsumerReco
     protected ConsumerRecord<K, V> record;
     protected OffsetMgr offsetMgr;
 
-    public KafkaTask() {}
-
     public KafkaTask(ConsumerRecord<K, V> record, OffsetMgr offsetMgr) {
         this.record = record;
         this.offsetMgr = offsetMgr;
