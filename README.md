@@ -1,6 +1,11 @@
 # lite-kafka-consumer
 a lightweight tool for kafka consumer
 
+1. separate poll thread and consume thread, and support multi consume thread
+2. make a redundant poll to avoid consumer re-balance
+3. support consumer to reset partition offset
+4. wait for more ...
+
 ```java
 // demo code, separate kafka poll thread and a single consume thread
 final Properties props = new Properties();
