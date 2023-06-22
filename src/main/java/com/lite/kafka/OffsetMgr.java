@@ -48,7 +48,7 @@ public class OffsetMgr {
     public void commit(String topic, int partition, long offset) {
         OffsetBits offsetBits = offsetMap.get(topic + "_" + partition);
         offsetBits.setTrue(offset);
-        LOGGER.debug("commit partition {} offset {}", partition, offset);
+        LOGGER.debug("commit topic {}:{} offset {}", topic, partition, offset);
     }
 
     public boolean isAllConsumed() {
