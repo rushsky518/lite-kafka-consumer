@@ -24,18 +24,18 @@ public class KafkaPollThread<K, V> extends Thread {
     private OffsetMgr offsetMgr = null;
     private Set<TopicPartition> partitions = null;
 
-    private TaskHandler<K, V> taskHandler;
+    private TaskGenerator<K, V> taskGenerator;
 
     private String groupId;
     protected volatile ResetOps resetOps;
 
-    public KafkaPollThread(KafkaConsumer<K, V> kafkaConsumer, TaskHandler<K, V> kvTaskHandler, String name) {
-        this(kafkaConsumer, kvTaskHandler, name, new SequentialThread());
+    public KafkaPollThread(KafkaConsumer<K, V> kafkaConsumer, TaskGenerator<K, V> kvTaskGenerator, String name) {
+        this(kafkaConsumer, kvTaskGenerator, name, new SequentialThread());
     }
 
-    public KafkaPollThread(KafkaConsumer<K, V> kafkaConsumer, TaskHandler<K, V> kvTaskHandler, String name, KafkaWorker kafkaWorker) {
+    public KafkaPollThread(KafkaConsumer<K, V> kafkaConsumer, TaskGenerator<K, V> kvTaskGenerator, String name, KafkaWorker kafkaWorker) {
         this.kafkaConsumer = kafkaConsumer;
-        this.taskHandler = kvTaskHandler;
+        this.taskGenerator = kvTaskGenerator;
         this.setName(name);
         this.kafkaWorker = kafkaWorker;
         this.groupId = kafkaConsumer.groupMetadata().groupId();
@@ -73,10 +73,12 @@ public class KafkaPollThread<K, V> extends Thread {
                 lastPollTime = System.currentTimeMillis();
                 offsetMgr = OffsetMgr.get(records);
                 for (ConsumerRecord<K, V> record : records) {
-                    if (taskHandler != null) {
-                        KafkaTask<K, V> accept = taskHandler.accept(record, offsetMgr);
+                    if (taskGenerator != null) {
+                        KafkaTask<K, V> task = taskGenerator.generate();
+                        task.record = record;
+                        task.offsetMgr = offsetMgr;
                         if (kafkaWorker != null) {
-                            kafkaWorker.submit(accept);
+                            kafkaWorker.submit(task);
                         } else {
                             LOGGER.warn("kafkaWorker is null");
                         }

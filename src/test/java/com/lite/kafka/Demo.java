@@ -24,7 +24,7 @@ public class Demo {
         final KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props);
         consumer.subscribe(Collections.singleton("test"));
 
-        KafkaPollThread<String, String> pollThread = new KafkaPollThread<>(consumer, (record, offsetMgr) -> new KafkaTask<String, String>(record, offsetMgr) {
+        KafkaPollThread<String, String> pollThread = new KafkaPollThread<>(consumer, () -> new KafkaTask<String, String>() {
             @Override
             public void accept(ConsumerRecord<String, String> record) {
                 System.out.printf("offset=%d, key=%s, value=%s\n", record.offset(), record.key(), record.value());
