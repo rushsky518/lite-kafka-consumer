@@ -25,7 +25,7 @@ public class OffsetBits {
         this.cdLatch = new CountDownLatch(size);
     }
 
-    public void setTrue(long offset) {
+    public synchronized void setTrue(long offset) {
         long index = offset - base;
         bits.set((int) index, true);
         this.cdLatch.countDown();
