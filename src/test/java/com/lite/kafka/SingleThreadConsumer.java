@@ -8,7 +8,7 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 import java.util.Collections;
 import java.util.Properties;
 
-public class Demo {
+public class SingleThreadConsumer {
     public static void main(String[] args) {
         final Properties props = new Properties();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "127.0.0.1:9092");
@@ -27,7 +27,8 @@ public class Demo {
         KafkaPollThread<String, String> pollThread = new KafkaPollThread<>(consumer, () -> new KafkaTask<String, String>() {
             @Override
             public void accept(ConsumerRecord<String, String> record) {
-                System.out.printf("offset=%d, key=%s, value=%s\n", record.offset(), record.key(), record.value());
+                System.out.printf("thread:%s offset=%d, key=%s, value=%s\n", Thread.currentThread(),
+                        record.offset(), record.key(), record.value());
             }
         }, "biz-poll-thread");
 

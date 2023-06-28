@@ -9,9 +9,18 @@ public class ResetOps {
     private int partition;
     private long offset;
 
+    public ResetOps() {}
+
+    public ResetOps(String groupId, String topic, int partition, long offset) {
+        this.groupId = groupId;
+        this.topic = topic;
+        this.partition = partition;
+        this.offset = offset;
+    }
+
     @Override
     public String toString() {
-        return String.format("%s,%s,%d.%d", groupId, topic, partition, offset);
+        return String.format("%s,%s,%d,%d", groupId, topic, partition, offset);
     }
 
     public static ResetOps fromString(String str) {
