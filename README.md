@@ -1,10 +1,11 @@
 # lite-kafka-consumer
 a lightweight tool for kafka consumer
 
-1. separates poll thread and consume thread, and supports multi consume thread
+1. separates poll thread and consume thread, and supports multiple consume threads
 2. makes a redundant poll to avoid consumer re-balance
 3. supports consumer to reset partition offset
-4. wait for more ...
+4. supports multiple threads to consume in sequential order
+5. wait for more
 
 ```java
 // demo code, separate kafka poll thread and a single consume thread
