@@ -12,7 +12,7 @@ public class TestProducer {
     public static void main(String[] args) throws InterruptedException {
         Properties props = new Properties();
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "127.0.0.1:9092");
-        props.put(ProducerConfig.ACKS_CONFIG, "0");
+        props.put(ProducerConfig.ACKS_CONFIG, "1");
         // If the request fails, the producer can automatically retry,
         props.put(ProducerConfig.RETRIES_CONFIG, 1);
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,
