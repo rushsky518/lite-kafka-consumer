@@ -5,7 +5,7 @@
 
     <groupId>io.github.rushsky518</groupId>
     <artifactId>lite-kafka-consumer</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.0</version>
 
     <packaging>jar</packaging>
     <modelVersion>4.0.0</modelVersion>
@@ -40,6 +40,10 @@
             <id>ossrh</id>
             <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
         </snapshotRepository>
+        <repository>
+            <id>ossrh</id>
+            <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
     </distributionManagement>
     <build>
         <plugins>
