@@ -7,6 +7,14 @@ a lightweight tool for kafka consumer
 4. supports multiple threads to consume in sequential order
 5. wait for more
 
+```xml
+<dependency>
+    <groupId>io.github.rushsky518</groupId>
+    <artifactId>lite-kafka-consumer</artifactId>
+    <version>1.0.0</version>
+</dependency>
+```
+
 ```java
 // demo code, separate kafka poll thread and a single consume thread
 final Properties props = new Properties();
