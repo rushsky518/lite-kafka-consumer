@@ -23,7 +23,7 @@ public class TestProducer {
 
         for (int i = 0; ; i ++) {
             String msg = String.format("msg %d", i);
-            producer.send(new ProducerRecord<>("test", msg));
+            producer.send(new ProducerRecord<>("test", i + "", msg));
             System.out.printf("send %s\n", msg);
             TimeUnit.SECONDS.sleep(2);
         }
