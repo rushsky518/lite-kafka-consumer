@@ -46,7 +46,6 @@ pollThread.start();
 Summary About KafkaConsumer
 （为准确表述，使用中文）
 ```text
-the arch of KafkaConsumer
 └─KafkaConsumer
     ├─ConsumerCoordinator
     │  ├─ConsumerNetworkClient
