@@ -45,7 +45,7 @@ pollThread.start();
 <br>
 <br>
 Summary About KafkaConsumer
-```java
+```text
 the arch of KafkaConsumer
 └─KafkaConsumer
     ├─ConsumerCoordinator
