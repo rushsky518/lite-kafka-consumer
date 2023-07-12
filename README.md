@@ -41,6 +41,9 @@ KafkaPollThread<String, String> pollThread = new KafkaPollThread<>(consumer, () 
 pollThread.start();
 ```
 
+<br>
+<br>
+<br>
 Summary about kafka consumer:（为准确表述，使用中文）
 
 对于消费者而言，它必然属于一个消费组，它所订阅的 topic 分区可能分布在不同的 broker 节点上，因此消费者需要解决的问题是：
