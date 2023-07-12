@@ -45,6 +45,7 @@ pollThread.start();
 <br>
 Summary About KafkaConsumer
 （为准确表述，使用中文）
+
 ```text
 └─KafkaConsumer
     ├─ConsumerCoordinator
@@ -63,6 +64,7 @@ Summary About KafkaConsumer
         ├─fetchedRecords()
         └─sendFetches()
 ```
+
 对于消费者而言，它必然属于一个消费组，它所订阅的 topic 分区可能分布在不同的 broker 节点上，因此消费者需要解决的问题是：
 1. 按照约定的协议加入到 consumer group 中，接收 broker 的分区分配方案
 2. 向已分配分区（主）所在的 broker 拉取消息
