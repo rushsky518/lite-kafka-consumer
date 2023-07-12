@@ -55,7 +55,7 @@ Summary about kafka consumer:（为准确表述，使用中文）
 
 
 实现上的细节：
-1. 启动一个 KafkaConsumer 实例，会创建两个个线程，一个线程用来 poll 消息，另一个心跳线程用来进行组管理及发送心跳
+1. 启动一个 KafkaConsumer 实例，会创建 2 个线程，1 个线程用来 poll 消息，另 1 个心跳线程用来进行组管理及发送心跳
 - KafkaConsumer 在 poll 的过程中，会更新 metadata 信息并记录 poll 时刻，心跳线程根据 poll 时刻来决定是否发送心跳及 join group 等
 2. consumer 的连接管理 
 - 遵循按需创建的原则，如果 consumer 需要从该 node 拉取消息，则会创建连接，同时 consumer 与 GroupCoordinator 会另外创建一条连接，隔离消息拉取和 group 管理
