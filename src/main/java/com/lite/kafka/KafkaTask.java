@@ -1,5 +1,8 @@
 package com.lite.kafka;
 
+import brave.Span;
+import brave.Tracer;
+import brave.kafka.clients.KafkaTracing;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +20,8 @@ public abstract class KafkaTask<K ,V> implements Runnable, Consumer<ConsumerReco
     protected ConsumerRecord<K, V> record;
     protected OffsetMgr offsetMgr;
 
+    protected KafkaTracing kafkaTracing;
+
     public KafkaTask() {}
 
     public KafkaTask(ConsumerRecord<K, V> record, OffsetMgr offsetMgr) {
@@ -26,6 +31,13 @@ public abstract class KafkaTask<K ,V> implements Runnable, Consumer<ConsumerReco
 
     @Override
     public void run() {
+        Span span = null;
+        if (kafkaTracing != null) {
+            // Grab any span from the record. The topic and key are automatically tagged
+            span = kafkaTracing.nextSpan(record).name(this.getClass().getName()).start();
+            Tracer tracer = kafkaTracing.messagingTracing().tracing().tracer();
+            Tracer.SpanInScope ws = tracer.withSpanInScope(span);
+        }
         int retry = 0;
         boolean committed = false;
         while (retry < RETRY_LIMIT) {
@@ -35,12 +47,18 @@ public abstract class KafkaTask<K ,V> implements Runnable, Consumer<ConsumerReco
                 committed = true;
                 break;
             } catch (Exception ex) {
+                if (span != null) {
+                    span.error(ex);
+                }
                 LOGGER.error("error", ex);
                 retry += 1;
             }
         }
         if (!committed) {
             commit();
+        }
+        if (span != null) {
+            span.finish();
         }
     }
 
@@ -51,4 +69,5 @@ public abstract class KafkaTask<K ,V> implements Runnable, Consumer<ConsumerReco
     protected ConsumerRecord<K, V> getRecord() {
         return record;
     }
+
 }
