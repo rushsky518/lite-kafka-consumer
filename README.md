@@ -45,6 +45,7 @@ pollThread.start();
 <br>
 <br>
 Summary About KafkaConsumer
+`
 the arch of KafkaConsumer
 └─KafkaConsumer
     ├─ConsumerCoordinator
@@ -62,6 +63,7 @@ the arch of KafkaConsumer
         ├─ConsumerNetworkClient
         ├─fetchedRecords()
         └─sendFetches()
+`
 
 （为准确表述，使用中文）
 
