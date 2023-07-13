@@ -22,7 +22,7 @@ public abstract class TaskGenerator<K, V> {
      */
     abstract KafkaTask<K, V> generate();
 
-    protected KafkaTask<K, V> decorate() {
+    KafkaTask<K, V> decorate() {
         KafkaTask<K, V> task = generate();
         if (tracing != null) {
             task.kafkaTracing = tracing;
