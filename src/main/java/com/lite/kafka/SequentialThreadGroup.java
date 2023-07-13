@@ -8,7 +8,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * 支持分区按顺序消费
+ * 多线程按分区顺序消费
  */
 public class SequentialThreadGroup implements KafkaWorker {
     private int num = Runtime.getRuntime().availableProcessors();

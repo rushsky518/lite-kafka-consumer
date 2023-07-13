@@ -6,7 +6,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * 支持分区按顺序消费
+ * 多线程消费
  */
 public class MultiThreadGroup implements KafkaWorker {
     private int num = Runtime.getRuntime().availableProcessors();
