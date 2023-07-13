@@ -34,7 +34,7 @@ consumer.subscribe(Collections.singleton("test"));
 
 KafkaPollThread<String, String> pollThread = new KafkaPollThread<>(consumer, new TaskGenerator<String, String>() {
 	@Override
-	KafkaTask<String, String> generate() {
+	public KafkaTask<String, String> generate() {
 		return new KafkaTask<String, String>() {
 			@Override
 			public void accept(ConsumerRecord<String, String> record) {

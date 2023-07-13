@@ -20,7 +20,7 @@ public abstract class TaskGenerator<K, V> {
      * implemented by caller
      * @return a KafkaTask
      */
-    abstract KafkaTask<K, V> generate();
+    public abstract KafkaTask<K, V> generate();
 
     KafkaTask<K, V> decorate() {
         KafkaTask<K, V> task = generate();
