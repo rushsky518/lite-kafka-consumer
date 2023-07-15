@@ -27,11 +27,16 @@ public class MultiThreadConsumer {
 
         MultiThreadGroup threadGroup = new MultiThreadGroup(4);
 
-        KafkaPollThread<String, String> pollThread = new KafkaPollThread<>(consumer, () -> new KafkaTask<String, String>() {
+        KafkaPollThread<String, String> pollThread = new KafkaPollThread<>(consumer, new TaskGenerator<String, String>() {
             @Override
-            public void accept(ConsumerRecord<String, String> record) {
-                System.out.printf("thread:%s offset=%d, key=%s, value=%s\n", Thread.currentThread(),
-                        record.offset(), record.key(), record.value());
+            public KafkaTask<String, String> generate() {
+                return new KafkaTask<String, String>() {
+                    @Override
+                    public void accept(ConsumerRecord<String, String> re) {
+                        System.out.printf("thread:%s offset=%d, key=%s, value=%s\n", Thread.currentThread(),
+                                record.offset(), record.key(), record.value());
+                    }
+                };
             }
         }, "biz-poll-thread", threadGroup);
 

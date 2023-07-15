@@ -74,7 +74,7 @@ public class KafkaPollThread<K, V> extends Thread {
                 offsetMgr = OffsetMgr.get(records);
                 for (ConsumerRecord<K, V> record : records) {
                     if (taskGenerator != null) {
-                        KafkaTask<K, V> task = taskGenerator.generate();
+                        KafkaTask<K, V> task = taskGenerator.decorate();
                         task.record = record;
                         task.offsetMgr = offsetMgr;
                         if (kafkaWorker != null) {

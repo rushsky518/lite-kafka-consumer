@@ -24,11 +24,16 @@ public class SingleThreadConsumer {
         final KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props);
         consumer.subscribe(Collections.singleton("test"));
 
-        KafkaPollThread<String, String> pollThread = new KafkaPollThread<>(consumer, () -> new KafkaTask<String, String>() {
+        KafkaPollThread<String, String> pollThread = new KafkaPollThread<>(consumer, new TaskGenerator<String, String>() {
             @Override
-            public void accept(ConsumerRecord<String, String> record) {
-                System.out.printf("thread:%s offset=%d, key=%s, value=%s\n", Thread.currentThread(),
-                        record.offset(), record.key(), record.value());
+            public KafkaTask<String, String> generate() {
+                return new KafkaTask<String, String>() {
+                    @Override
+                    public void accept(ConsumerRecord<String, String> record) {
+                        System.out.printf("thread:%s offset=%d, key=%s, value=%s\n", Thread.currentThread(),
+                                this.record.offset(), this.record.key(), this.record.value());
+                    }
+                };
             }
         }, "biz-poll-thread");
 
