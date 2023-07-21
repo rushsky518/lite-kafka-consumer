@@ -4,6 +4,7 @@ import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.serialization.StringDeserializer;
 
 import java.time.Duration;
@@ -39,7 +40,8 @@ public class ResetManager {
     public ResetManager(Properties properties) {
         new Thread(() -> {
             KafkaConsumer<String, String> kafkaConsumer = new KafkaConsumer<>(properties);
-            kafkaConsumer.subscribe(Collections.singletonList(RESET_TOPIC));
+            TopicPartition tp = new TopicPartition(RESET_TOPIC, 0);
+            kafkaConsumer.assign(Collections.singleton(tp));
             while (!stop) {
                 ConsumerRecords<String, String> records = kafkaConsumer.poll(Duration.ofSeconds(5));
                 if (records.isEmpty()) {

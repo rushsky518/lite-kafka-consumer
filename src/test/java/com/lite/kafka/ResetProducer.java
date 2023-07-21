@@ -26,7 +26,7 @@ public class ResetProducer {
                 "org.apache.kafka.common.serialization.StringSerializer");
         KafkaProducer<String, String> producer = new KafkaProducer<>(props);
 
-        ResetOps resetOps = new ResetOps(RESET_GROUP_ID, "test", 0, 40);
+        ResetOps resetOps = new ResetOps(RESET_GROUP_ID, "test", 0, 10);
         Future<RecordMetadata> future = producer.send(new ProducerRecord<>(RESET_TOPIC, resetOps.toString()));
         System.out.printf("send %s\n", resetOps);
 
