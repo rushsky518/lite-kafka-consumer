@@ -1,12 +1,12 @@
 # lite-kafka-consumer
-a lightweight tool for kafka consumer
+A lightweight tool for kafka consumer
 
-1. separates poll thread and consume thread, and supports multiple consume threads
-2. makes a redundant poll to avoid consumer re-balance
-3. supports consumer to reset partition offset
-4. supports multiple threads to consume in sequential order
-5. integrated with brave trace span
-6. wait for more
+1. Separates poll thread and consume thread, and supports multiple consume threads
+2. Makes a redundant poll to avoid consumer re-balance
+3. Supports consumer to reset partition offset
+4. Supports multiple threads to consume in sequential order
+5. Integrated with brave trace span
+6. Wait for more, and any issue is welcomed!
 
 ```xml
 <dependency>
