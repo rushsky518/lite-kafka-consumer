@@ -52,7 +52,8 @@ public class KafkaPollThread<K, V> extends Thread {
                         kafkaConsumer.commitSync();
                         offsetMgr = null;
                     } else {
-                        if (System.currentTimeMillis() - lastPollTime > 300_000L) {
+                        // 'max.poll.interval.ms' default value is 300000
+                        if (System.currentTimeMillis() - lastPollTime > 200_000L) {
                             ConsumerRecords<K, V> discard = kafkaConsumer.poll(Duration.ofSeconds(1));
                             // poll once to avoid re-balance, just discard records
                         } else {
