@@ -73,7 +73,7 @@ Summary About KafkaConsumer
 ```
 
 对于消费者而言，它必然属于一个消费组，它所订阅的 topic 分区可能分布在不同的 broker 节点上，因此消费者需要解决的问题是：
-1. 按照约定的协议加入到 consumer group 中，接收 broker 的分区分配方案
+1. 按照约定的协议加入到 consumer group 中，接收 broker 广播的分区分配方案
 2. 向已分配分区（leader）所在的 broker 拉取消息
 3. 向对应的 GroupCoordinator 提交 offset 信息
    `Each Kafka server instantiates a coordinator which is responsible for a set of groups. Groups are assigned to coordinators based on their group names.`
