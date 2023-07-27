@@ -55,6 +55,8 @@ public class KafkaPollThread<K, V> extends Thread {
                         // 'max.poll.interval.ms' default value is 300000
                         if (System.currentTimeMillis() - lastPollTime > 200_000L) {
                             ConsumerRecords<K, V> discard = kafkaConsumer.poll(Duration.ofSeconds(1));
+                            LOGGER.warn("A redundant poll is done to avoid re-balance, {}", discard);
+                            lastPollTime = System.currentTimeMillis();
                             // poll once to avoid re-balance, just discard records
                         } else {
                             offsetMgr.waitAllConsumed(50, TimeUnit.MILLISECONDS);
