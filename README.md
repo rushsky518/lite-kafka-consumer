@@ -6,7 +6,7 @@ A lightweight tool for kafka consumer
 3. Supports consumer to reset partition offset
 4. Supports multiple threads to consume in sequential order
 5. Integrated with brave trace span
-6. Wait for more, and any issue is welcomed!
+6. Wait for more, and any issue is welcome!
 
 ```xml
 <dependency>
