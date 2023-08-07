@@ -39,7 +39,7 @@ public class SequentialThreadGroup implements KafkaWorker {
     public void submit(KafkaTask kafkaTask) {
         ConsumerRecord record = kafkaTask.getRecord();
         String key = record.topic() + "_" + record.partition();
-        int index = key.hashCode() % this.num;
+        int index = Math.abs(key.hashCode() % this.num);
         ExecutorService executorService = poolGroup.get(index);
         executorService.submit(kafkaTask);
     }

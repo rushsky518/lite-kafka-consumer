@@ -11,7 +11,7 @@ import java.util.concurrent.Executors;
 public class MultiThreadGroup implements KafkaWorker {
     private int num = Runtime.getRuntime().availableProcessors();
     private List<ExecutorService> poolGroup;
-    private int tasks;
+    private volatile int tasks;
 
     public MultiThreadGroup() {
         init(num);
