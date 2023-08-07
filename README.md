@@ -6,7 +6,7 @@ A lightweight tool for kafka consumer
 3. Supports consumer to reset partition offset
 4. Supports multiple threads to consume in sequential order
 5. Integrated with brave trace span
-6. Wait for more, and any issue is welcomed!
+6. Wait for more, and any issue is welcome!
 
 ```xml
 <dependency>
@@ -73,7 +73,7 @@ Summary About KafkaConsumer
 ```
 
 对于消费者而言，它必然属于一个消费组，它所订阅的 topic 分区可能分布在不同的 broker 节点上，因此消费者需要解决的问题是：
-1. 按照约定的协议加入到 consumer group 中，接收 broker 的分区分配方案
+1. 按照约定的协议加入到 consumer group 中，接收 broker 广播的分区分配方案
 2. 向已分配分区（leader）所在的 broker 拉取消息
 3. 向对应的 GroupCoordinator 提交 offset 信息
    `Each Kafka server instantiates a coordinator which is responsible for a set of groups. Groups are assigned to coordinators based on their group names.`
@@ -82,7 +82,7 @@ Summary About KafkaConsumer
 
 实现上的细节：
 1. 启动一个 KafkaConsumer 实例，会创建 2 个线程，1 个线程用来 poll 消息，另 1 个心跳线程用来进行组管理及发送心跳
-- KafkaConsumer 在 poll 的过程中，会更新 metadata 信息并记录 poll 时刻，心跳线程根据 poll 时刻来决定是否发送心跳及 join group 等
+- KafkaConsumer 在 poll 的过程中，会更新 metadata 信息并记录 poll 时刻，心跳线程综合考虑 poll 时刻和计时器来决定是否发送心跳及 join group 等
 2. consumer 的连接管理 
 - 遵循按需创建的原则，如果 consumer 需要从该 node 拉取消息，则会创建连接，同时 consumer 与 GroupCoordinator 会另外创建一条连接，隔离消息拉取和 group 管理
    `use MAX_VALUE - node.id as the coordinator id to allow separate connections for the coordinator in the underlying network client layer`
