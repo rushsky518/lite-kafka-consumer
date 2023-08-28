@@ -46,6 +46,8 @@ public class KafkaPollThread<K, V> extends Thread {
         long lastPollTime = 0;
         while (!this.stop) {
             try {
+                resetIfNeed();
+
                 if (offsetMgr != null) {
                     if (offsetMgr.isAllConsumed()) {
                         kafkaConsumer.resume(partitions);
@@ -64,8 +66,6 @@ public class KafkaPollThread<K, V> extends Thread {
                         continue;
                     }
                 }
-
-                reset();
 
                 ConsumerRecords<K, V> records = kafkaConsumer.poll(Duration.ofSeconds(5));
                 if (records.isEmpty()) {
@@ -107,7 +107,7 @@ public class KafkaPollThread<K, V> extends Thread {
         return this.groupId;
     }
 
-    private void reset() {
+    private void resetIfNeed() {
         if (resetOps != null) {
             Set assignment = kafkaConsumer.assignment();
             TopicPartition tp = new TopicPartition(resetOps.getTopic(), resetOps.getPartition());
