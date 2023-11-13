@@ -59,6 +59,8 @@ public class ResetManager {
                 } // iterate record
                 kafkaConsumer.commitSync();
             }
+
+            kafkaConsumer.unsubscribe();
         }, this.getClass().getSimpleName()).start();
 
     }
