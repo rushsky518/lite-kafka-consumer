@@ -96,11 +96,12 @@ public class KafkaPollThread<K, V> extends Thread {
                 offsetMgr = null;
             }
         }
+
+        this.kafkaConsumer.close();
     }
 
     public void stopPoll() {
         this.stop = true;
-        this.kafkaConsumer.close();
         this.kafkaWorker.shutdown();
     }
     protected String groupId() {
