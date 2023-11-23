@@ -4,7 +4,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * 单线程顺序消费
+ * 支持分区按顺序消费
  */
 public class SequentialThread implements KafkaWorker {
     private ExecutorService executorService = Executors.newSingleThreadExecutor();

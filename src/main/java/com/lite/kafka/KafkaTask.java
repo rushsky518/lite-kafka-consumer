@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 import java.util.function.Consumer;
 
 /**
- * 消息的任务封装
+ * 消息的简单封装
  */
 public abstract class KafkaTask<K ,V> implements Runnable, Consumer<ConsumerRecord<K ,V>> {
     private static final Logger LOGGER = LoggerFactory.getLogger(KafkaTask.class);

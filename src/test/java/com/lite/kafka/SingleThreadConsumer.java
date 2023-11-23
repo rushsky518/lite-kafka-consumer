@@ -8,9 +8,6 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 import java.util.Collections;
 import java.util.Properties;
 
-/**
- * -Dorg.slf4j.simpleLogger.defaultLogLevel=debug
- */
 public class SingleThreadConsumer {
     public static void main(String[] args) {
         final Properties props = new Properties();
@@ -41,6 +38,5 @@ public class SingleThreadConsumer {
         }, "biz-poll-thread");
 
         pollThread.start();
-//        pollThread.stopPoll();
     }
 }

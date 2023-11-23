@@ -12,7 +12,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
- * kafka consumer poll thread
+ * kafka consumer poll thread, and submit task one by one
  */
 public class KafkaPollThread<K, V> extends Thread {
     private static final Logger LOGGER = LoggerFactory.getLogger(KafkaPollThread.class);
@@ -97,7 +97,7 @@ public class KafkaPollThread<K, V> extends Thread {
             }
         }
 
-        this.kafkaConsumer.close();
+        kafkaConsumer.close();
     }
 
     public void stopPoll() {
