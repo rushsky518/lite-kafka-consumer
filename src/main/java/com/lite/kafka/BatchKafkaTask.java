@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 /**
- * 一批消息的简单封装
+ * a batch of kafka records
  */
 public abstract class BatchKafkaTask<K ,V> implements Runnable, Consumer<List<ConsumerRecord<K ,V>>> {
     private static final Logger LOGGER = LoggerFactory.getLogger(BatchKafkaTask.class);
