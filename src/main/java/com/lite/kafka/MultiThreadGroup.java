@@ -42,6 +42,15 @@ public class MultiThreadGroup implements KafkaWorker {
         executorService.submit(kafkaTask);
     }
 
+
+    @Override
+    public void submit(BatchKafkaTask kafkaBatchTask) {
+        tasks ++;
+        int index = tasks % this.num;
+        ExecutorService executorService = poolGroup.get(index);
+        executorService.submit(kafkaBatchTask);
+    }
+    
     @Override
     public void shutdown() {
         for (ExecutorService executorService : poolGroup) {

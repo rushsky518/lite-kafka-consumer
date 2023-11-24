@@ -17,6 +17,11 @@ public class SequentialThread implements KafkaWorker {
     }
 
     @Override
+    public void submit(BatchKafkaTask kafkaTask) {
+        executorService.submit(kafkaTask);
+    }
+
+    @Override
     public void shutdown() {
         executorService.shutdown();
     }
