@@ -14,7 +14,8 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
- * kafka consumer poll thread, and submit a batch of tasks once
+ * kafka consumer poll thread, and submit a batch of tasks once.
+ * make sure max.poll.records > batchSize
  */
 public class BatchKafkaPollThread<K, V> extends Thread {
     private static final Logger LOGGER = LoggerFactory.getLogger(BatchKafkaPollThread.class);
