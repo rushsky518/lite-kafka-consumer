@@ -19,7 +19,7 @@ public class MultiThreadConsumerForBatchTask {
                 StringDeserializer.class.getName());
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
                 StringDeserializer.class.getName());
-        props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, "10");
+        props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, "211");
         props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
 
@@ -42,7 +42,7 @@ public class MultiThreadConsumerForBatchTask {
                     }
                 };
             }
-        }, "biz-poll-thread", threadGroup);
+        }, "biz-poll-thread", threadGroup, 10);
 
         pollThread.start();
     }

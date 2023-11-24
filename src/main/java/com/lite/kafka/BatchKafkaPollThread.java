@@ -25,22 +25,23 @@ public class BatchKafkaPollThread<K, V> extends Thread {
     private volatile boolean stop = false;
     private OffsetMgr offsetMgr = null;
     private Set<TopicPartition> partitions = null;
-    private int batchSize = 4;
+    private int batchSize = 10;
     private BatchTaskGenerator<K, V> taskGenerator;
 
     private String groupId;
     protected volatile ResetOps resetOps;
 
-    public BatchKafkaPollThread(KafkaConsumer<K, V> kafkaConsumer, BatchTaskGenerator<K, V> kvTaskGenerator, String name) {
-        this(kafkaConsumer, kvTaskGenerator, name, new SequentialThread());
+    public BatchKafkaPollThread(KafkaConsumer<K, V> kafkaConsumer, BatchTaskGenerator<K, V> kvTaskGenerator, String name, int batchSize) {
+        this(kafkaConsumer, kvTaskGenerator, name, new SequentialThread(), batchSize);
     }
 
-    public BatchKafkaPollThread(KafkaConsumer<K, V> kafkaConsumer, BatchTaskGenerator<K, V> kvTaskGenerator, String name, KafkaWorker kafkaWorker) {
+    public BatchKafkaPollThread(KafkaConsumer<K, V> kafkaConsumer, BatchTaskGenerator<K, V> kvTaskGenerator, String name, KafkaWorker kafkaWorker, int batchSize) {
         this.kafkaConsumer = kafkaConsumer;
         this.taskGenerator = kvTaskGenerator;
         this.setName(name);
         this.kafkaWorker = kafkaWorker;
         this.groupId = kafkaConsumer.groupMetadata().groupId();
+        this.batchSize = batchSize;
     }
 
     @Override
