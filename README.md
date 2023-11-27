@@ -5,8 +5,9 @@ A lightweight tool for kafka consumer
 2. Makes a redundant poll to avoid consumer re-balance
 3. Supports consumer to reset partition offset
 4. Supports multiple threads to consume in sequential order
-5. Integrated with brave trace span
-6. Wait for more, and any issue is welcome!
+5. Submit task with a batch of records to multiple consume threads
+6. Integrated with brave trace span
+7. Wait for more, and any issue is welcome!
 
 ```xml
 <dependency>
