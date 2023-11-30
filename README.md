@@ -7,7 +7,8 @@ A lightweight tool for kafka consumer
 4. Supports multiple threads to consume in sequential order
 5. Submit task with a batch of records to multiple consume threads
 6. Integrated with brave trace span
-7. Wait for more, and any issue is welcome!
+7. Supply a onConsumeError api
+8. Wait for more, and any issue is welcome!
 
 ```xml
 <dependency>
