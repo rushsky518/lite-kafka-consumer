@@ -11,6 +11,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -30,7 +31,7 @@ public class BatchKafkaPollThread<K, V> extends Thread {
     private BatchTaskGenerator<K, V> taskGenerator;
 
     private String groupId;
-    protected volatile ResetOps resetOps;
+    protected ArrayBlockingQueue<ResetOps> resetQueue = new ArrayBlockingQueue<>(16);
 
     public BatchKafkaPollThread(KafkaConsumer<K, V> kafkaConsumer, BatchTaskGenerator<K, V> kvTaskGenerator, String name, int batchSize) {
         this(kafkaConsumer, kvTaskGenerator, name, new SequentialThread(), batchSize);
@@ -122,13 +123,13 @@ public class BatchKafkaPollThread<K, V> extends Thread {
     }
 
     private void resetIfNeed() {
-        if (resetOps != null) {
+        ResetOps resetOp;
+        while ((resetOp = resetQueue.poll()) != null) {
             Set assignment = kafkaConsumer.assignment();
-            TopicPartition tp = new TopicPartition(resetOps.getTopic(), resetOps.getPartition());
+            TopicPartition tp = new TopicPartition(resetOp.getTopic(), resetOp.getPartition());
             if (assignment.contains(tp)) {
-                kafkaConsumer.seek(tp, resetOps.getOffset());
+                kafkaConsumer.seek(tp, resetOp.getOffset());
             }
-            resetOps = null;
         }
     }
 }

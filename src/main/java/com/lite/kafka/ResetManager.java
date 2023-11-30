@@ -6,6 +6,8 @@ import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.serialization.StringDeserializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -17,9 +19,12 @@ import java.util.Properties;
  * offset reset manager
  */
 public class ResetManager {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ResetManager.class);
+
     private volatile boolean stop = false;
     public static final String RESET_TOPIC = "RESET_OFFSET";
     private List<KafkaPollThread> pollThreads = new ArrayList<>();
+    private List<BatchKafkaPollThread> batchPollThreads = new ArrayList<>();
 
     public static ResetManager getResetManager(String bootstrapServers, String serverIp, int port) {
         final Properties props = new Properties();
@@ -52,8 +57,21 @@ public class ResetManager {
                     ResetOps resetOps = ResetOps.fromString(value);
                     for (KafkaPollThread pollThread : pollThreads) {
                         if (pollThread.groupId().equals(resetOps.getGroupId())) {
-                            pollThread.resetOps = resetOps;
-                            break;
+                            try {
+                                pollThread.resetQueue.put(resetOps);
+                            } catch (InterruptedException e) {
+                                LOGGER.error("", e);
+                            }
+                        }
+                    }
+
+                    for (BatchKafkaPollThread pollThread : batchPollThreads) {
+                        if (pollThread.groupId().equals(resetOps.getGroupId())) {
+                            try {
+                                pollThread.resetQueue.put(resetOps);
+                            } catch (InterruptedException e) {
+                                LOGGER.error("", e);
+                            }
                         }
                     }
                 } // iterate record
@@ -67,6 +85,10 @@ public class ResetManager {
 
     public void register(KafkaPollThread pollThread) {
         pollThreads.add(pollThread);
+    }
+
+    public void register(BatchKafkaPollThread pollThread) {
+        batchPollThreads.add(pollThread);
     }
 
     public void stop() {

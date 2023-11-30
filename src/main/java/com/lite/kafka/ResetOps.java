@@ -2,6 +2,7 @@ package com.lite.kafka;
 
 /**
  * 重置 offset
+ * todo
  */
 public class ResetOps {
     private String groupId;

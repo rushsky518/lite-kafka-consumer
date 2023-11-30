@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.util.Set;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -27,7 +28,7 @@ public class KafkaPollThread<K, V> extends Thread {
     private TaskGenerator<K, V> taskGenerator;
 
     private String groupId;
-    protected volatile ResetOps resetOps;
+    protected ArrayBlockingQueue<ResetOps> resetQueue = new ArrayBlockingQueue<>(16);
 
     public KafkaPollThread(KafkaConsumer<K, V> kafkaConsumer, TaskGenerator<K, V> kvTaskGenerator, String name) {
         this(kafkaConsumer, kvTaskGenerator, name, new SequentialThread());
@@ -109,13 +110,13 @@ public class KafkaPollThread<K, V> extends Thread {
     }
 
     private void resetIfNeed() {
-        if (resetOps != null) {
+        ResetOps resetOp;
+        while ((resetOp = resetQueue.poll()) != null) {
             Set assignment = kafkaConsumer.assignment();
-            TopicPartition tp = new TopicPartition(resetOps.getTopic(), resetOps.getPartition());
+            TopicPartition tp = new TopicPartition(resetOp.getTopic(), resetOp.getPartition());
             if (assignment.contains(tp)) {
-                kafkaConsumer.seek(tp, resetOps.getOffset());
+                kafkaConsumer.seek(tp, resetOp.getOffset());
             }
-            resetOps = null;
         }
     }
 }
