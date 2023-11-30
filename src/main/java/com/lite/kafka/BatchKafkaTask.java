@@ -17,6 +17,7 @@ public abstract class BatchKafkaTask<K ,V> implements Runnable, Consumer<List<Co
 
     protected List<ConsumerRecord<K, V>> records;
     protected OffsetMgr offsetMgr;
+    protected boolean success = true;
 
     public BatchKafkaTask() {}
 
@@ -40,8 +41,13 @@ public abstract class BatchKafkaTask<K ,V> implements Runnable, Consumer<List<Co
                 retry += 1;
             }
         }
+
         if (!committed) {
             commit();
+        }
+
+        if (!success) {
+            onConsumeError();
         }
     }
 
@@ -55,4 +61,9 @@ public abstract class BatchKafkaTask<K ,V> implements Runnable, Consumer<List<Co
         return records;
     }
 
+    protected void onConsumeError() {}
+
+    protected boolean isSuccess() {
+        return success;
+    }
 }

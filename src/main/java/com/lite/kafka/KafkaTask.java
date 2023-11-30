@@ -19,7 +19,7 @@ public abstract class KafkaTask<K ,V> implements Runnable, Consumer<ConsumerReco
 
     protected ConsumerRecord<K, V> record;
     protected OffsetMgr offsetMgr;
-
+    protected boolean success = true;
     protected KafkaTracing kafkaTracing;
 
     public KafkaTask() {}
@@ -57,6 +57,11 @@ public abstract class KafkaTask<K ,V> implements Runnable, Consumer<ConsumerReco
         if (!committed) {
             commit();
         }
+
+        if (!success) {
+            onConsumeError();
+        }
+
         if (span != null) {
             span.finish();
         }
@@ -70,4 +75,9 @@ public abstract class KafkaTask<K ,V> implements Runnable, Consumer<ConsumerReco
         return record;
     }
 
+    protected void onConsumeError() {}
+
+    protected boolean isSuccess() {
+        return success;
+    }
 }

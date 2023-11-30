@@ -23,8 +23,8 @@ public class ResetManager {
 
     private volatile boolean stop = false;
     public static final String RESET_TOPIC = "RESET_OFFSET";
-    private List<KafkaPollThread> pollThreads = new ArrayList<>();
-    private List<BatchKafkaPollThread> batchPollThreads = new ArrayList<>();
+    private final List<KafkaPollThread> pollThreads = new ArrayList<>();
+    private final List<BatchKafkaPollThread> batchPollThreads = new ArrayList<>();
 
     public static ResetManager getResetManager(String bootstrapServers, String serverIp, int port) {
         final Properties props = new Properties();
