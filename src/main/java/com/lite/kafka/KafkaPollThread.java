@@ -13,7 +13,8 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 /**
- * kafka consumer poll thread, and submit task one by one
+ * kafka consumer poll thread, and submit task one by one.
+ * make sure KafkaConsumer's autocommit is disabled.
  */
 public class KafkaPollThread<K, V> extends Thread {
     private static final Logger LOGGER = LoggerFactory.getLogger(KafkaPollThread.class);
