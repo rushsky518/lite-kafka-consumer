@@ -51,6 +51,11 @@ public class OffsetMgr {
         LOGGER.debug("commit topic {}:{} offset {}", topic, partition, offset);
     }
 
+    public void multiCommit(String topicPartition, List<Long> offsets) {
+        OffsetBits offsetBits = offsetMap.get(topicPartition);
+        offsetBits.multiSetTrue(offsets);
+    }
+
     public boolean isAllConsumed() {
         boolean result = true;
         for (OffsetBits bits : offsetMap.values()) {

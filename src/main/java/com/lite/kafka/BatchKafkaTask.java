@@ -4,7 +4,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
+import java.util.*;
 import java.util.function.Consumer;
 
 /**
@@ -52,8 +52,18 @@ public abstract class BatchKafkaTask<K ,V> implements Runnable, Consumer<List<Co
     }
 
     private void commit() {
+        Map<String, List<Long>> offsetMap = new HashMap<>();
+
         for (ConsumerRecord<K, V> record : records) {
             offsetMgr.commit(record.topic(), record.partition(), record.offset());
+            String key = record.topic() + "_" + record.partition();
+            List<Long> offsets = offsetMap.computeIfAbsent(key, k -> new ArrayList<>());
+            offsets.add(record.offset());
+        }
+
+        for (Map.Entry<String, List<Long>> entry : offsetMap.entrySet()) {
+            List<Long> offsets = entry.getValue();
+            offsetMgr.multiCommit(entry.getKey(), offsets);
         }
     }
 

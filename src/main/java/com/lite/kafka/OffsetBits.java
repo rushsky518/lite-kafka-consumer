@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.BitSet;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -29,6 +30,15 @@ public class OffsetBits {
         long index = offset - base;
         bits.set((int) index, true);
         this.cdLatch.countDown();
+    }
+
+    public synchronized void multiSetTrue(List<Long> offsets) {
+        for (int i = 0; i < offsets.size(); i ++) {
+            long offset = offsets.get(i);
+            long index = offset - base;
+            bits.set((int) index, true);
+            this.cdLatch.countDown();
+        }
     }
 
     public boolean isPartitionConsumed() {
