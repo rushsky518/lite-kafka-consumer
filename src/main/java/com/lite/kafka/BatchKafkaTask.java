@@ -55,7 +55,6 @@ public abstract class BatchKafkaTask<K ,V> implements Runnable, Consumer<List<Co
         Map<String, List<Long>> offsetMap = new HashMap<>();
 
         for (ConsumerRecord<K, V> record : records) {
-            offsetMgr.commit(record.topic(), record.partition(), record.offset());
             String key = record.topic() + "_" + record.partition();
             List<Long> offsets = offsetMap.computeIfAbsent(key, k -> new ArrayList<>());
             offsets.add(record.offset());
