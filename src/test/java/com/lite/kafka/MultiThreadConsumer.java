@@ -7,6 +7,7 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 
 import java.util.Collections;
 import java.util.Properties;
+import java.util.concurrent.locks.LockSupport;
 
 public class MultiThreadConsumer {
 
@@ -18,12 +19,12 @@ public class MultiThreadConsumer {
                 StringDeserializer.class.getName());
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
                 StringDeserializer.class.getName());
-        props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, "10");
+        props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, "100");
         props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
 
         final KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props);
-        consumer.subscribe(Collections.singleton("logs"));
+        consumer.subscribe(Collections.singleton("test"));
 
         MultiThreadGroup threadGroup = new MultiThreadGroup(4);
 
@@ -39,7 +40,7 @@ public class MultiThreadConsumer {
                 };
             }
         }, "biz-poll-thread", threadGroup);
-
+//        pollThread.setCommitPeriod(1000L);
         pollThread.start();
     }
 }

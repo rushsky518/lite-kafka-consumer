@@ -25,7 +25,7 @@ public class TestProducer {
             String msg = String.format("msg %d", i);
             producer.send(new ProducerRecord<>("test", i + "", msg));
             System.out.printf("send %s\n", msg);
-            TimeUnit.SECONDS.sleep(2);
+            TimeUnit.MILLISECONDS.sleep(100);
         }
     }
 

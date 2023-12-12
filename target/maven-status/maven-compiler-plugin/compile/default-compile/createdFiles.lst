@@ -1,0 +1,11 @@
+com\lite\kafka\ResetManager.class
+com\lite\kafka\OffsetMgr.class
+com\lite\kafka\TaskGenerator.class
+com\lite\kafka\KafkaPollThread.class
+com\lite\kafka\OffsetBits.class
+com\lite\kafka\SequentialThread.class
+com\lite\kafka\ResetOps.class
+com\lite\kafka\KafkaWorker.class
+com\lite\kafka\SequentialThreadGroup.class
+com\lite\kafka\KafkaTask.class
+com\lite\kafka\MultiThreadGroup.class

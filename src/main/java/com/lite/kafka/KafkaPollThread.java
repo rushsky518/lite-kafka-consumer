@@ -56,11 +56,17 @@ public class KafkaPollThread<K, V> extends Thread {
                 resetIfNeed();
 
                 if (offsetMgr != null) {
-                    if (offsetMgr.isAllConsumed() && canCommit(lastCommitTime)) {
-                        kafkaConsumer.resume(partitions);
-                        kafkaConsumer.commitSync();
-                        lastCommitTime = System.nanoTime();
-                        offsetMgr = null;
+                    if (offsetMgr.isAllConsumed()) {
+                        if (canCommit(lastCommitTime)) {
+                            kafkaConsumer.resume(partitions);
+                            kafkaConsumer.commitSync();
+                            lastCommitTime = System.nanoTime();
+                            offsetMgr = null;
+                        } else {
+                            LOGGER.warn("wait {} ms to commit", commitPeriod);
+                            TimeUnit.MILLISECONDS.sleep(commitPeriod > 0L ? commitPeriod : 10L);
+                            continue;
+                        }
                     } else {
                         // 'max.poll.interval.ms' default value is 300000
                         if (nanoToMillis(System.nanoTime() - lastPollTime) > 200_000L) {
