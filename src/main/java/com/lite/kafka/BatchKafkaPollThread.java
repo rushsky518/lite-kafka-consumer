@@ -103,7 +103,7 @@ public class BatchKafkaPollThread<K, V> extends Thread {
                 }
 
                 // 等待这批消息消费完成
-                partitions = records.partitions();
+                partitions = kafkaConsumer.assignment();
                 kafkaConsumer.pause(partitions);
             } catch (Exception ex) {
                 LOGGER.error("poll error", ex);

@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -23,6 +24,8 @@ public class KafkaPollThread<K, V> extends Thread {
     private KafkaWorker kafkaWorker;
     // poll 线程可运行标识
     private volatile boolean stop = false;
+    // period millis of commit offset, default -1
+    private long commitPeriod = -1L;
     private OffsetMgr offsetMgr = null;
     private Set<TopicPartition> partitions = null;
 
@@ -46,21 +49,24 @@ public class KafkaPollThread<K, V> extends Thread {
     @Override
     public void run() {
         long lastPollTime = 0;
+        long lastCommitTime = 0;
+
         while (!this.stop) {
             try {
                 resetIfNeed();
 
                 if (offsetMgr != null) {
-                    if (offsetMgr.isAllConsumed()) {
+                    if (offsetMgr.isAllConsumed() && canCommit(lastCommitTime)) {
                         kafkaConsumer.resume(partitions);
                         kafkaConsumer.commitSync();
+                        lastCommitTime = System.nanoTime();
                         offsetMgr = null;
                     } else {
                         // 'max.poll.interval.ms' default value is 300000
-                        if (System.currentTimeMillis() - lastPollTime > 200_000L) {
+                        if (nanoToMillis(System.nanoTime() - lastPollTime) > 200_000L) {
                             ConsumerRecords<K, V> discard = kafkaConsumer.poll(Duration.ofSeconds(1));
-                            LOGGER.warn("A redundant poll is done to avoid re-balance, {}", discard);
-                            lastPollTime = System.currentTimeMillis();
+                            LOGGER.warn("A redundant poll is done to avoid re-balance, {}", descRecords(discard));
+                            lastPollTime = System.nanoTime();
                             // poll once to avoid re-balance, just discard records
                         } else {
                             offsetMgr.waitAllConsumed(50, TimeUnit.MILLISECONDS);
@@ -75,7 +81,7 @@ public class KafkaPollThread<K, V> extends Thread {
                 }
 
                 // 记录当前时间
-                lastPollTime = System.currentTimeMillis();
+                lastPollTime = System.nanoTime();
                 offsetMgr = OffsetMgr.get(records);
                 for (ConsumerRecord<K, V> record : records) {
                     if (taskGenerator != null) {
@@ -91,7 +97,7 @@ public class KafkaPollThread<K, V> extends Thread {
                 }
 
                 // 等待这批消息消费完成
-                partitions = records.partitions();
+                partitions = kafkaConsumer.assignment();
                 kafkaConsumer.pause(partitions);
             } catch (Exception ex) {
                 LOGGER.error("poll error", ex);
@@ -102,10 +108,41 @@ public class KafkaPollThread<K, V> extends Thread {
         kafkaConsumer.close();
     }
 
+    public void setCommitPeriod(long commitPeriod) {
+        this.commitPeriod = commitPeriod;
+    }
+
+    private boolean canCommit(long lastCommitTime) {
+        if (commitPeriod == -1L) {
+            return true;
+        }
+        return nanoToMillis(System.nanoTime() - lastCommitTime) > commitPeriod;
+    }
+
+    private long nanoToMillis(long nano) {
+        return nano / 1000_000L;
+    }
+
+    private String descRecords(ConsumerRecords<K, V> discard) {
+        StringBuilder sb = new StringBuilder();
+
+        for (TopicPartition tp: discard.partitions()) {
+            List<ConsumerRecord<K, V>> records = discard.records(tp);
+            if (records.size() > 0) {
+                ConsumerRecord<K, V> record = records.get(0);
+                sb.append(tp.toString()).append(":").append(record.offset());
+                sb.append(",");
+            }
+        }
+
+        return sb.toString();
+    }
+
     public void stopPoll() {
         this.stop = true;
         this.kafkaWorker.shutdown();
     }
+
     protected String groupId() {
         return this.groupId;
     }
