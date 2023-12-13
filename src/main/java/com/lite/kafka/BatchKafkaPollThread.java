@@ -62,10 +62,10 @@ public class BatchKafkaPollThread<K, V> extends Thread {
                         offsetMgr = null;
                     } else {
                         // 'max.poll.interval.ms' default value is 300000
-                        if (System.currentTimeMillis() - lastPollTime > 200_000L) {
+                        if (nanoToMillis(System.nanoTime() - lastPollTime) > 200_000L) {
                             ConsumerRecords<K, V> discard = kafkaConsumer.poll(Duration.ofSeconds(1));
                             LOGGER.warn("A redundant poll is done to avoid re-balance, {}", discard);
-                            lastPollTime = System.currentTimeMillis();
+                            lastPollTime = System.nanoTime();
                             // poll once to avoid re-balance, just discard records
                         } else {
                             offsetMgr.waitAllConsumed(50, TimeUnit.MILLISECONDS);
@@ -80,7 +80,7 @@ public class BatchKafkaPollThread<K, V> extends Thread {
                 }
 
                 // 记录当前时间
-                lastPollTime = System.currentTimeMillis();
+                lastPollTime = System.nanoTime();
                 offsetMgr = OffsetMgr.get(records);
 
                 for (ConsumerRecord<K, V> record : records) {
@@ -114,10 +114,15 @@ public class BatchKafkaPollThread<K, V> extends Thread {
         kafkaConsumer.close();
     }
 
+    private long nanoToMillis(long nano) {
+        return nano / 1000_000L;
+    }
+
     public void stopPoll() {
         this.stop = true;
         this.kafkaWorker.shutdown();
     }
+
     protected String groupId() {
         return this.groupId;
     }
