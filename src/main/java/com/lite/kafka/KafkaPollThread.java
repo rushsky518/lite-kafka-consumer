@@ -46,11 +46,11 @@ public class KafkaPollThread<K, V> extends Thread {
         this.groupId = kafkaConsumer.groupMetadata().groupId();
     }
 
+    long lastPollTime = 0;
+    long lastCommitTime = 0;
+
     @Override
     public void run() {
-        long lastPollTime = 0;
-        long lastCommitTime = 0;
-
         while (!this.stop) {
             try {
                 resetIfNeed();
@@ -64,16 +64,16 @@ public class KafkaPollThread<K, V> extends Thread {
                             offsetMgr = null;
                         } else {
                             LOGGER.debug("wait {} ms to commit", commitPeriod);
+                            if (nanoToMillis(System.nanoTime() - lastPollTime) > 200_000L) {
+                                emptyPoll();
+                            }
                             TimeUnit.MILLISECONDS.sleep(commitPeriod > 0L ? commitPeriod : 10L);
                             continue;
                         }
                     } else {
                         // 'max.poll.interval.ms' default value is 300000
                         if (nanoToMillis(System.nanoTime() - lastPollTime) > 200_000L) {
-                            ConsumerRecords<K, V> discard = kafkaConsumer.poll(Duration.ofSeconds(1));
-                            LOGGER.warn("A redundant poll is done to avoid re-balance, {}", descRecords(discard));
-                            lastPollTime = System.nanoTime();
-                            // poll once to avoid re-balance, just discard records
+                            emptyPoll();
                         } else {
                             offsetMgr.waitAllConsumed(50, TimeUnit.MILLISECONDS);
                         }
@@ -112,6 +112,12 @@ public class KafkaPollThread<K, V> extends Thread {
         }
 
         kafkaConsumer.close();
+    }
+
+    private void emptyPoll() {
+        ConsumerRecords<K, V> discard = kafkaConsumer.poll(Duration.ofSeconds(1));
+        LOGGER.warn("A redundant poll is done to avoid re-balance, {}", descRecords(discard));
+        lastPollTime = System.nanoTime();
     }
 
     public void setCommitPeriod(long commitPeriod) {
