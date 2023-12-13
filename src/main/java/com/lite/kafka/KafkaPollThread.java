@@ -24,8 +24,10 @@ public class KafkaPollThread<K, V> extends Thread {
     private KafkaWorker kafkaWorker;
     // poll 线程可运行标识
     private volatile boolean stop = false;
-    // period millis of commit offset, default -1
-    private long commitPeriod = -1L;
+    // period millis to poll messages, default -1
+    private long pollPeriod = -1L;
+    // interval millis to commit offset, will cause data inconsistency, not suggested
+    private long commitInterval = -1L;
     private OffsetMgr offsetMgr = null;
     private Set<TopicPartition> partitions = null;
 
@@ -44,6 +46,8 @@ public class KafkaPollThread<K, V> extends Thread {
         this.setName(name);
         this.kafkaWorker = kafkaWorker;
         this.groupId = kafkaConsumer.groupMetadata().groupId();
+
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> stopPoll()));
     }
 
     long lastPollTime = 0;
@@ -57,17 +61,19 @@ public class KafkaPollThread<K, V> extends Thread {
 
                 if (offsetMgr != null) {
                     if (offsetMgr.isAllConsumed()) {
-                        if (canCommit(lastCommitTime)) {
+                        if (canResume()) {
                             kafkaConsumer.resume(partitions);
-                            kafkaConsumer.commitSync();
-                            lastCommitTime = System.nanoTime();
+                            if (canCommit()) {
+                                kafkaConsumer.commitSync();
+                                lastCommitTime = System.nanoTime();
+                            }
                             offsetMgr = null;
                         } else {
-                            LOGGER.debug("wait {} ms to commit", commitPeriod);
+                            LOGGER.debug("wait {} ms to resume", pollPeriod);
                             if (nanoToMillis(System.nanoTime() - lastPollTime) > 200_000L) {
                                 emptyPoll();
                             }
-                            TimeUnit.MILLISECONDS.sleep(commitPeriod > 0L ? commitPeriod : 10L);
+                            TimeUnit.MILLISECONDS.sleep(pollPeriod > 0L ? pollPeriod : 10L);
                             continue;
                         }
                     } else {
@@ -110,8 +116,6 @@ public class KafkaPollThread<K, V> extends Thread {
                 offsetMgr = null;
             }
         }
-
-        kafkaConsumer.close();
     }
 
     private void emptyPoll() {
@@ -120,15 +124,26 @@ public class KafkaPollThread<K, V> extends Thread {
         lastPollTime = System.nanoTime();
     }
 
-    public void setCommitPeriod(long commitPeriod) {
-        this.commitPeriod = commitPeriod;
+    public void setPollPeriod(long pollPeriod) {
+        this.pollPeriod = pollPeriod;
     }
 
-    private boolean canCommit(long lastCommitTime) {
-        if (commitPeriod == -1L) {
+    public void setCommitInterval(long commitInterval) {
+        this.commitInterval = commitInterval;
+    }
+
+    private boolean canResume() {
+        if (pollPeriod == -1L) {
             return true;
         }
-        return nanoToMillis(System.nanoTime() - lastCommitTime) > commitPeriod;
+        return nanoToMillis(System.nanoTime() - lastPollTime) > pollPeriod;
+    }
+
+    private boolean canCommit() {
+        if (commitInterval == -1L) {
+            return true;
+        }
+        return nanoToMillis(System.nanoTime() - lastCommitTime) > commitInterval;
     }
 
     private long nanoToMillis(long nano) {
@@ -152,7 +167,10 @@ public class KafkaPollThread<K, V> extends Thread {
 
     public void stopPoll() {
         this.stop = true;
+        this.kafkaConsumer.commitSync();
+        this.kafkaConsumer.close();
         this.kafkaWorker.shutdown();
+        LOGGER.warn("shutdown KafkaPollThread");
     }
 
     protected String groupId() {

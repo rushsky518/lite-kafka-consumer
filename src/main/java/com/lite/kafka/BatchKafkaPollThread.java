@@ -44,6 +44,8 @@ public class BatchKafkaPollThread<K, V> extends Thread {
         this.kafkaWorker = kafkaWorker;
         this.groupId = kafkaConsumer.groupMetadata().groupId();
         this.batchSize = batchSize;
+
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> stopPoll()));
     }
 
     @Override
@@ -110,8 +112,6 @@ public class BatchKafkaPollThread<K, V> extends Thread {
                 offsetMgr = null;
             }
         }
-
-        kafkaConsumer.close();
     }
 
     private long nanoToMillis(long nano) {
@@ -120,7 +120,10 @@ public class BatchKafkaPollThread<K, V> extends Thread {
 
     public void stopPoll() {
         this.stop = true;
+        this.kafkaConsumer.commitSync();
+        this.kafkaConsumer.close();
         this.kafkaWorker.shutdown();
+        LOGGER.warn("shutdown BatchKafkaPollThread");
     }
 
     protected String groupId() {
