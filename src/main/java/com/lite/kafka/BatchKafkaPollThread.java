@@ -23,6 +23,7 @@ public class BatchKafkaPollThread<K, V> extends Thread {
 
     private KafkaConsumer<K,V> kafkaConsumer;
     private KafkaWorker kafkaWorker;
+    private boolean addStopHook = false;
     // poll 线程可运行标识
     private volatile boolean stop = false;
     private OffsetMgr offsetMgr = null;
@@ -44,12 +45,14 @@ public class BatchKafkaPollThread<K, V> extends Thread {
         this.kafkaWorker = kafkaWorker;
         this.groupId = kafkaConsumer.groupMetadata().groupId();
         this.batchSize = batchSize;
-
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> stopPoll()));
     }
 
     @Override
     public void run() {
+        if (addStopHook) {
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> stopPoll()));
+        }
+
         long lastPollTime = 0;
         List<ConsumerRecord<K, V>> batch = new ArrayList<>(batchSize);
 
@@ -116,6 +119,10 @@ public class BatchKafkaPollThread<K, V> extends Thread {
 
     private long nanoToMillis(long nano) {
         return nano / 1000_000L;
+    }
+
+    public void setAddStopHook(boolean addStopHook) {
+        this.addStopHook = addStopHook;
     }
 
     public void stopPoll() {

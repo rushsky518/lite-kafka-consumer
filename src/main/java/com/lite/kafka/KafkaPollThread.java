@@ -22,6 +22,7 @@ public class KafkaPollThread<K, V> extends Thread {
 
     private KafkaConsumer<K,V> kafkaConsumer;
     private KafkaWorker kafkaWorker;
+    private boolean addStopHook = false;
     // poll 线程可运行标识
     private volatile boolean stop = false;
     // period millis to poll messages, default -1
@@ -46,8 +47,6 @@ public class KafkaPollThread<K, V> extends Thread {
         this.setName(name);
         this.kafkaWorker = kafkaWorker;
         this.groupId = kafkaConsumer.groupMetadata().groupId();
-
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> stopPoll()));
     }
 
     long lastPollTime = 0;
@@ -55,6 +54,10 @@ public class KafkaPollThread<K, V> extends Thread {
 
     @Override
     public void run() {
+        if (addStopHook) {
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> stopPoll()));
+        }
+
         while (!this.stop) {
             try {
                 resetIfNeed();
@@ -163,6 +166,10 @@ public class KafkaPollThread<K, V> extends Thread {
         }
 
         return sb.toString();
+    }
+
+    public void setAddStopHook(boolean addStopHook) {
+        this.addStopHook = addStopHook;
     }
 
     public void stopPoll() {
