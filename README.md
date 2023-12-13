@@ -6,9 +6,10 @@ A lightweight tool for kafka consumer
 3. Supports consumer to reset partition offset
 4. Supports multiple threads to consume in sequential order
 5. Submit task with a batch of records to multiple consume threads
-6. Integrated with brave trace span
-7. Supply a onConsumeError api
-8. Wait for more, and any issue is welcome!
+6. Supports to control the rate of pulling messages by set commitPeriod
+7. Integrated with brave trace span
+8. Supply a onConsumeError api
+9. Wait for more, and any issue is welcome!
 
 ```xml
 <dependency>
