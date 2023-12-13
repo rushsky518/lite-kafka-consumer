@@ -1,16 +1,20 @@
 package com.lite.kafka;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 多线程按分区顺序消费
  */
 public class SequentialThreadGroup implements KafkaWorker {
+    private static final Logger LOGGER = LoggerFactory.getLogger(SequentialThreadGroup.class);
     private int num = Runtime.getRuntime().availableProcessors();
     private List<ExecutorService> poolGroup;
 
@@ -48,6 +52,13 @@ public class SequentialThreadGroup implements KafkaWorker {
     public void shutdown() {
         for (ExecutorService executorService : poolGroup) {
             executorService.shutdown();
+        }
+        for (ExecutorService executorService : poolGroup) {
+            try {
+                executorService.awaitTermination(30, TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+                LOGGER.error("", e);
+            }
         }
     }
 }

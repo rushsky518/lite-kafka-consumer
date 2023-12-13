@@ -1,14 +1,19 @@
 package com.lite.kafka;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 多线程消费消息
  */
 public class MultiThreadGroup implements KafkaWorker {
+    private static final Logger LOGGER = LoggerFactory.getLogger(MultiThreadGroup.class);
     private int num = Runtime.getRuntime().availableProcessors();
     private List<ExecutorService> poolGroup;
     private volatile int tasks;
@@ -55,6 +60,13 @@ public class MultiThreadGroup implements KafkaWorker {
     public void shutdown() {
         for (ExecutorService executorService : poolGroup) {
             executorService.shutdown();
+        }
+        for (ExecutorService executorService : poolGroup) {
+            try {
+                executorService.awaitTermination(30, TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+                LOGGER.error("", e);
+            }
         }
     }
 }
