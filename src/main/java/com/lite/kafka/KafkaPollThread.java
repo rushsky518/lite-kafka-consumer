@@ -63,7 +63,7 @@ public class KafkaPollThread<K, V> extends Thread {
                             lastCommitTime = System.nanoTime();
                             offsetMgr = null;
                         } else {
-                            LOGGER.warn("wait {} ms to commit", commitPeriod);
+                            LOGGER.debug("wait {} ms to commit", commitPeriod);
                             TimeUnit.MILLISECONDS.sleep(commitPeriod > 0L ? commitPeriod : 10L);
                             continue;
                         }
