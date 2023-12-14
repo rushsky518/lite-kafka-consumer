@@ -28,6 +28,7 @@ public class BatchKafkaPollThread<K, V> extends Thread {
     private volatile boolean stop = false;
     private OffsetMgr offsetMgr = null;
     private Set<TopicPartition> partitions = null;
+    private boolean commitWhenClose = false;
     private int batchSize = 10;
     private BatchTaskGenerator<K, V> taskGenerator;
 
@@ -129,7 +130,9 @@ public class BatchKafkaPollThread<K, V> extends Thread {
         this.stop = true;
         this.interrupt();
         this.kafkaWorker.shutdown();
-        this.kafkaConsumer.commitSync();
+        if (commitWhenClose) {
+            this.kafkaConsumer.commitSync();
+        }
         this.kafkaConsumer.close();
         LOGGER.warn("shutdown BatchKafkaPollThread");
     }

@@ -31,7 +31,7 @@ public class KafkaPollThread<K, V> extends Thread {
     private long commitInterval = -1L;
     private OffsetMgr offsetMgr = null;
     private Set<TopicPartition> partitions = null;
-
+    private boolean commitWhenClose = false;
     private TaskGenerator<K, V> taskGenerator;
 
     private String groupId;
@@ -172,11 +172,17 @@ public class KafkaPollThread<K, V> extends Thread {
         this.addStopHook = addStopHook;
     }
 
+    public void setCommitWhenClose(boolean commitWhenClose) {
+        this.commitWhenClose = commitWhenClose;
+    }
+
     public void stopPoll() {
         this.stop = true;
         this.interrupt();
         this.kafkaWorker.shutdown();
-        this.kafkaConsumer.commitSync();
+        if (commitWhenClose) {
+            this.kafkaConsumer.commitSync();
+        }
         this.kafkaConsumer.close();
         LOGGER.warn("shutdown KafkaPollThread");
     }
