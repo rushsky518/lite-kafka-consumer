@@ -16,7 +16,7 @@ A lightweight tool for kafka consumer
 <dependency>
     <groupId>io.github.rushsky518</groupId>
     <artifactId>lite-kafka-consumer</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
 </dependency>
 ```
 
