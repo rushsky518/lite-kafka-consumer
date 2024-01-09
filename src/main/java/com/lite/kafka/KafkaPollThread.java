@@ -179,6 +179,12 @@ public class KafkaPollThread<K, V> extends Thread {
     public void stopPoll() {
         this.stop = true;
         this.interrupt();
+        try {
+            // wait poll thread to release lock
+            TimeUnit.MILLISECONDS.sleep(50);
+        } catch (InterruptedException e) {
+            // ignore
+        }
         this.kafkaWorker.shutdown();
         if (commitWhenClose) {
             this.kafkaConsumer.commitSync();
