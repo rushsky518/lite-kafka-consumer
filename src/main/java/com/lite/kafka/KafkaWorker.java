@@ -4,4 +4,5 @@ public interface KafkaWorker {
     void submit(KafkaTask kafkaTask);
     default void submit(BatchKafkaTask kafkaBatchTask) {}
     void shutdown();
+    default void refresh() {}
 }

@@ -4,6 +4,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.TopicPartition;
+import org.apache.kafka.common.errors.RebalanceInProgressException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -117,6 +118,10 @@ public class KafkaPollThread<K, V> extends Thread {
             } catch (Exception ex) {
                 LOGGER.error("poll error", ex);
                 offsetMgr = null;
+
+                if (ex instanceof RebalanceInProgressException) {
+                    kafkaWorker.refresh();
+                }
             }
         }
     }
