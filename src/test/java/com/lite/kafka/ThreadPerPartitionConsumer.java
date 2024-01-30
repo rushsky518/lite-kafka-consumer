@@ -5,6 +5,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Properties;
 
@@ -23,7 +24,7 @@ public class ThreadPerPartitionConsumer {
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
 
         final KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props);
-        consumer.subscribe(Collections.singleton("zipkin"));
+        consumer.subscribe(Collections.singleton("test"));
 
         ThreadGroupPerPartition threadGroup = new ThreadGroupPerPartition();
 
