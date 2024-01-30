@@ -15,21 +15,18 @@ import java.util.concurrent.TimeUnit;
  */
 public class SequentialThreadGroup implements KafkaWorker {
     private static final Logger LOGGER = LoggerFactory.getLogger(SequentialThreadGroup.class);
-    private int num = Runtime.getRuntime().availableProcessors();
+    private int num;
     private List<ExecutorService> poolGroup;
 
     public SequentialThreadGroup() {
-        init(num);
+        this(Runtime.getRuntime().availableProcessors());
     }
 
     public SequentialThreadGroup(int num) {
-        this.num = num;
-        init(num);
-    }
-
-    private void init(int num) {
         if (num > 0) {
             this.num = num;
+        } else {
+            throw new RuntimeException("illegal argument");
         }
 
         poolGroup = new ArrayList<>(num);

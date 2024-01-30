@@ -14,17 +14,26 @@ import java.util.concurrent.TimeUnit;
  */
 public class MultiThreadGroup implements KafkaWorker {
     private static final Logger LOGGER = LoggerFactory.getLogger(MultiThreadGroup.class);
-    private int num = Runtime.getRuntime().availableProcessors();
+    private int num;
     private List<ExecutorService> poolGroup;
     private volatile int tasks;
 
     public MultiThreadGroup() {
-        init(num);
+        this(Runtime.getRuntime().availableProcessors());
     }
 
     public MultiThreadGroup(int num) {
-        this.num = num;
-        init(num);
+        if (num > 0) {
+            this.num = num;
+        } else {
+            throw new RuntimeException("illegal argument");
+        }
+
+        poolGroup = new ArrayList<>(num);
+        for (int i = 0; i < num; i ++) {
+            ExecutorService executorService = Executors.newSingleThreadExecutor();
+            poolGroup.add(executorService);
+        }
     }
 
     private void init(int num) {
