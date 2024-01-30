@@ -4,7 +4,7 @@ A lightweight tool for kafka consumer
 1. Separates poll thread and consume thread, and supports multiple consume threads
 2. Makes a redundant poll to avoid consumer re-balance
 3. Supports consumer to reset partition offset
-4. Supports multiple threads to consume in sequential order, even a partition is consumed by a specified thread
+4. Supports multiple threads to consume in sequential order, even a partition could be consumed by a specified thread
 5. Submit task with a batch of records to multiple consume threads
 6. Supports to control the rate of pulling messages by set pollPeriod
 7. Supports to control the rate of committing offsets by set commitInterval
