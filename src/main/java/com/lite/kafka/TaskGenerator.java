@@ -9,11 +9,16 @@ import brave.kafka.clients.KafkaTracing;
  */
 public abstract class TaskGenerator<K, V> {
     protected KafkaTracing tracing;
+    protected LeakyBucket leakyBucket;
 
     public TaskGenerator() {}
 
     public TaskGenerator(KafkaTracing tracing) {
         this.tracing = tracing;
+    }
+
+    public void setLeakyBucket(LeakyBucket leakyBucket) {
+        this.leakyBucket = leakyBucket;
     }
 
     /**
@@ -26,6 +31,9 @@ public abstract class TaskGenerator<K, V> {
         KafkaTask<K, V> task = generate();
         if (tracing != null) {
             task.kafkaTracing = tracing;
+        }
+        if (leakyBucket != null) {
+            task.leakyBucket = leakyBucket;
         }
         return task;
     }

@@ -21,7 +21,7 @@ public abstract class KafkaTask<K ,V> implements Runnable, Consumer<ConsumerReco
     protected OffsetMgr offsetMgr;
     protected boolean success = true;
     protected KafkaTracing kafkaTracing;
-
+    protected LeakyBucket leakyBucket;
     public KafkaTask() {}
 
     public KafkaTask(ConsumerRecord<K, V> record, OffsetMgr offsetMgr) {
@@ -31,6 +31,14 @@ public abstract class KafkaTask<K ,V> implements Runnable, Consumer<ConsumerReco
 
     @Override
     public void run() {
+        if (leakyBucket != null) {
+            try {
+                leakyBucket.addWater(1);
+            } catch (InterruptedException e) {
+                LOGGER.error("interrupted", e);
+            }
+        }
+
         Span span = null;
         if (kafkaTracing != null) {
             // Grab any span from the record. The topic and key are automatically tagged
