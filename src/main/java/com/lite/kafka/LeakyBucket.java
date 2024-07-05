@@ -1,53 +1,73 @@
 package com.lite.kafka;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
-/**
- * 漏桶对消息的消费进行限流，以条数为单位
- */
-public class LeakyBucket<T> {
-    private int waterMark;
-    private int capacity;
-    private List<T> elems = new ArrayList<>(capacity);
-    // 漏水速率
-    private int speed;
-    private ScheduledExecutorService scheduledExecutor = Executors.newScheduledThreadPool(1);
+public class LeakyBucket {
+    private final AtomicInteger waterMark;
+    private final int capacity;
+    private final int speed;
+    private final ScheduledExecutorService scheduledExecutor;
 
-    public LeakyBucket(int capacity, int speed, TimeUnit timeUnit) {
-        this.capacity = capacity;
-        this.speed = speed;
-        // 提交定时任务
-        scheduledExecutor.scheduleAtFixedRate(() -> {
-            synchronized (this) {
-                waterMark = waterMark - this.speed;
-                if (waterMark < 0) {
-                    waterMark = 0;
-                }
-            }
-        }, 1, 1, timeUnit);
+    public LeakyBucket(int speed, TimeUnit timeUnit) {
+        this(100, speed, timeUnit);
     }
 
-    public boolean tryAddWater(T elem) {
-        synchronized (this) {
-            if (elems.size() < capacity) {
-                elems.add(elem);
-                return true;
-            } else {
-                return false;
+    public LeakyBucket(int capacity, int speed, TimeUnit timeUnit) {
+        if (capacity <= 0 || speed <= 0) {
+            throw new IllegalArgumentException("Capacity and speed must be positive.");
+        }
+        this.capacity = capacity;
+        this.speed = speed;
+        this.waterMark = new AtomicInteger(capacity);
+        this.scheduledExecutor = Executors.newSingleThreadScheduledExecutor(r -> {
+            Thread t = new Thread(r);
+            t.setName("LeakyBucket-Scheduler");
+            return t;
+        });
+        scheduledExecutor.scheduleAtFixedRate(this::leak, 0, timeUnit.toMillis(1), TimeUnit.MILLISECONDS);
+    }
+
+    private void leak() {
+        try {
+            int newWaterMark = waterMark.addAndGet(-speed);
+            if (newWaterMark < 0) {
+                waterMark.set(0);
             }
+            synchronized (this) {
+                notifyAll();
+            }
+        } catch (Exception e) {
+            // Log the exception and continue
+            System.err.println("Error in leak task: " + e.getMessage());
         }
     }
 
-    public void addWater(T elem) throws InterruptedException {
-        synchronized (this) {
-            elems.add(elem);
-            if (elems.size() > capacity) {
+    public boolean tryAddWater(int amount) {
+        int currentWaterMark = waterMark.get();
+        if (currentWaterMark + amount > capacity) {
+            return false;
+        }
+        waterMark.addAndGet(amount);
+        return true;
+    }
+
+    public void addWater(int amount) throws InterruptedException {
+        while (true) {
+            int currentWaterMark = waterMark.get();
+            if (currentWaterMark + amount <= capacity) {
+                waterMark.addAndGet(amount);
+                break;
+            }
+            synchronized (this) {
                 wait();
             }
         }
+    }
+
+    public void shutdown() {
+        scheduledExecutor.shutdown();
     }
 }

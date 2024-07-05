@@ -7,6 +7,7 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 
 import java.util.Collections;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 
 public class LimitedConsumer {
     public static void main(String[] args) {
@@ -24,7 +25,8 @@ public class LimitedConsumer {
         final KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props);
         consumer.subscribe(Collections.singleton("test"));
 
-        TaskGenerator<String, String> taskGenerator = new TaskGenerator<>() {
+
+        TaskGenerator<String, String> taskGenerator = new TaskGenerator<String, String>() {
             @Override
             public KafkaTask<String, String> generate() {
                 return new KafkaTask<String, String>() {
@@ -36,9 +38,9 @@ public class LimitedConsumer {
                 };
             }
         };
-        taskGenerator.setLeakyBucket(new LeakyBucket(200, ));
+        taskGenerator.setLeakyBucket(new LeakyBucket(2, TimeUnit.SECONDS));
 
-        KafkaPollThread<String, String> pollThread = new KafkaPollThread<>(consumer, , "biz-poll-thread");
+        KafkaPollThread<String, String> pollThread = new KafkaPollThread<>(consumer, taskGenerator, "biz-poll-thread", new MultiThreadGroup(4));
 
         pollThread.start();
     }
