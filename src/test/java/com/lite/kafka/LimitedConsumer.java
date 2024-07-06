@@ -7,6 +7,8 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 
 import java.util.Collections;
 import java.util.Properties;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class LimitedConsumer {
@@ -38,7 +40,11 @@ public class LimitedConsumer {
                 };
             }
         };
-        taskGenerator.setLeakyBucket(new LeakyBucket(2, TimeUnit.SECONDS));
+
+        ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+        // 2 req/s
+        LeakyBucket leakyBucket = new LeakyBucket(2, 1, TimeUnit.SECONDS, executor);
+        taskGenerator.setLeakyBucket(leakyBucket);
 
         KafkaPollThread<String, String> pollThread = new KafkaPollThread<>(consumer, taskGenerator, "biz-poll-thread", new MultiThreadGroup(4));
 

@@ -191,6 +191,7 @@ public class KafkaPollThread<K, V> extends Thread {
             // ignore
         }
         this.kafkaWorker.shutdown();
+        this.taskGenerator.shutdown();
         if (commitWhenClose) {
             this.kafkaConsumer.commitSync();
         }

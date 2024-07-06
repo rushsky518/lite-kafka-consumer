@@ -37,4 +37,10 @@ public abstract class TaskGenerator<K, V> {
         }
         return task;
     }
+
+    protected void shutdown() {
+        if (this.leakyBucket != null) {
+            this.leakyBucket.shutdown();
+        }
+    }
 }
