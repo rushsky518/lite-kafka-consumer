@@ -6,11 +6,12 @@ A lightweight tool for kafka consumer
 3. Supports consumer to reset partition offset
 4. Supports multiple threads to consume in sequential order, even a partition could be consumed by a specified thread
 5. Submit task with a batch of records to multiple consume threads
-6. Supports to control the rate of pulling messages by set pollPeriod
-7. Supports to control the rate of committing offsets by set commitInterval
-8. Integrated with brave trace span
-9. Supply a onConsumeError api
-10. Wait for more, and any issue is welcome!
+6. Provide a leaky bucket to control the rate to consume msg
+7. Supports to control the rate of pulling messages by set pollPeriod
+8. Supports to control the rate of committing offsets by set commitInterval
+9. Integrated with brave trace span
+10. Supply a onConsumeError api
+11. Wait for more, and any issue is welcome!
 
 ```xml
 <dependency>
