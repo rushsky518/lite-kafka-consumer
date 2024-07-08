@@ -60,23 +60,28 @@ public class LeakyBucket {
     }
 
     public boolean tryAddWater(int amount) {
-        int currentWaterMark = waterMark.get();
-        if (currentWaterMark + amount > capacity) {
+        int curWaterMark = waterMark.get();
+        final int newWaterMark = curWaterMark + amount;
+        if (newWaterMark > capacity) {
             return false;
         }
-        waterMark.addAndGet(amount);
-        return true;
+        int updated = waterMark.addAndGet(amount);
+        return updated == newWaterMark;
     }
 
     public void addWater(int amount) throws InterruptedException {
         while (true) {
-            int currentWaterMark = waterMark.get();
-            if (currentWaterMark + amount <= capacity) {
-                waterMark.addAndGet(amount);
-                break;
-            }
-            synchronized (this) {
-                wait();
+            int curWaterMark = waterMark.get();
+            int newWaterMark = curWaterMark + amount;
+            if (newWaterMark <= capacity) {
+                int updated = waterMark.addAndGet(amount);
+                if (updated == newWaterMark) {
+                    break;
+                }
+            } else {
+                synchronized (this) {
+                    wait();
+                }
             }
         }
     }
